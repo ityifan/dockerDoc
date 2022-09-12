@@ -363,4 +363,200 @@ WORKDIR /app
 COPY hello.py hello.py
 ```
 
-2.构建参数和环境变量(ARG && ENV)
+## 2.构建参数和环境变量(ARG && ENV)
+
+ENV
+
+```dockerfile
+FROM ubuntu:20.04
+ENV VERSION=2.0.1
+RUN apt-get update && \
+    apt-get install -y wget && \
+    wget https://github.com/ipinfo/cli/releases/download/ipinfo-${VERSION}/ipinfo_${VERSION}_linux_amd64.tar.gz && \
+    tar zxf ipinfo_${VERSION}_linux_amd64.tar.gz && \
+    mv ipinfo_${VERSION}_linux_amd64 /usr/bin/ipinfo && \
+    rm -rf ipinfo_${VERSION}_linux_amd64.tar.gz
+```
+
+ARG
+
+```dockerfile
+FROM ubuntu:20.04
+ARG VERSION=2.0.1
+RUN apt-get update && \
+    apt-get install -y wget && \
+    wget https://github.com/ipinfo/cli/releases/download/ipinfo-${VERSION}/ipinfo_${VERSION}_linux_amd64.tar.gz && \
+    tar zxf ipinfo_${VERSION}_linux_amd64.tar.gz && \
+    mv ipinfo_${VERSION}_linux_amd64 /usr/bin/ipinfo && \
+    rm -rf ipinfo_${VERSION}_linux_amd64.tar.gz
+```
+
+区别
+
+```powershell
+docker image build -f .\Dockerfile-arg -t ipinfo-arg-2.0.0 --build-arg VERSION=2.0.0 .
+```
+
+ARG 可以在镜像build的时候动态修改value, 通过 `--build-arg`
+
+ENV 设置的变量可以在Image中保持，并在容器中的环境变量里
+
+## 3.CMD容器启动命令
+
+CMD可以用来设置容器启动时默认会执行的命令。
+
+- 容器启动时默认执行的命令
+
+- 如果docker container run启动容器时指定了其它命令，则CMD命令会被忽略
+
+- 如果定义了多个CMD，只有最后一个会被执行
+
+删除已经退出的docker container
+
+  ```powershell
+  docker system prune -f 
+  ```
+
+删除目前已经没有使用的image
+
+```powershell
+docker image prune -a
+```
+
+查看某个image的层级
+
+```powershell
+docker image history [image name]
+```
+
+运行结束即自动删除 container
+
+```powershell
+docker container run --rm -it ipinfo ipinfo 8.8.8.8
+```
+
+## 4.容器启动命令ENTRYPOINT
+
+ENTRYPOINT 也可以设置容器启动时要执行的命令，但是和CMD是有区别的。
+
+- `CMD` 设置的命令，可以在docker container run 时传入其它命令，覆盖掉 `CMD` 的命令，但是 `ENTRYPOINT` 所设置的命令是一定会被执行的。
+- `ENTRYPOINT` 和 `CMD` 可以联合使用，`ENTRYPOINT` 设置执行的命令，CMD传递参数
+
+```dockerfile
+FROM ubuntu:20.04
+ENTRYPOINT ["echo", "hello docker"]
+```
+
+```dockerfile
+FROM ubuntu:20.04
+ENTRYPOINT ["echo"]
+CMD []
+```
+
+## 5.Shell 格式和 Exec 格式
+
+CMD和ENTRYPOINT同时支持shell格式和Exec格式。
+
+Shell格式
+
+```dockerfile
+CMD echo "hello docker"
+ENTRYPOINT echo "hello docker"
+```
+
+Exec格式
+
+```dockerfile
+ENTRYPOINT ["echo", "hello docker"]
+CMD ["echo", "hello docker"]
+```
+
+假如我们要把上面的CMD改成Exec格式，下面这样改是不行的, 大家可以试试。
+
+```dockerfile
+FROM ubuntu:20.04
+ENV NAME=docker
+CMD ["echo", "hello $NAME"]
+```
+
+它会打印出 `hello $NAME` , 而不是 `hello docker` ,那么需要怎么写呢？ 我们需要以shell脚本的方式去执行
+
+```dockerfile
+FROM ubuntu:20.04
+ENV NAME=docker
+CMD ["sh", "-c", "echo hello $NAME"]
+```
+
+## 6.一起构建一个nodejs-express的镜像
+
+```powershell
+npm init -y
+npm i express
+```
+
+app.js
+
+```javascript
+const express = require('express')
+const app = express()
+app.get('/', (req, res) => {
+    res.send('hello,docker express')
+})
+app.listen(3000)
+console.log('网站服务器启动成功')
+```
+
+dockerfile
+
+```dockerfile
+FROM node
+
+WORKDIR /app/
+
+COPY package.json /app/
+
+COPY app.js /app/
+
+RUN npm install
+
+EXPOSE 3000
+
+CMD ["node","app.js","-h","0.0.0.0"]
+```
+
+打包
+
+```powershell
+docker image build -t flask-node-demo .
+```
+
+运行
+
+```powershell
+docker container run -it -p 3000:3000 flask-node-demo
+```
+
+![image-20220912181024766](iamge\image-20220912181024766.png)
+
+如此本机就可以访问到我们定义的接口咯
+
+## 7.dockerignore文件
+
+## 什么是Docker build context
+
+Docker是client-server架构，理论上Client和Server可以不在一台机器上。
+
+在构建docker镜像的时候，需要把所需要的文件由CLI（client）发给Server，这些文件实际上就是build context
+
+文件命名为
+
+```.dockerignore
+.dockerignore
+```
+
+```
+.vscode/
+env/
+```
+
+文件内部写哪个文件夹 打包的时候就忽略哪个文件夹
