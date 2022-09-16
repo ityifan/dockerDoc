@@ -560,3 +560,50 @@ env/
 ```
 
 文件内部写哪个文件夹 打包的时候就忽略哪个文件夹
+
+## 8.多阶段构建
+
+```dockerfile
+FROM gcc:9.4 AS builder
+
+COPY hello.c /src/hello.c
+
+WORKDIR /src
+
+RUN gcc --static -o hello hello.c
+
+
+
+FROM alpine:3.13.5
+
+COPY --from=builder /src/hello /src/hello
+
+ENTRYPOINT [ "/src/hello" ]
+
+CMD []
+```
+
+## 9.尽量使用非root用户
+
+```dockerfile
+FROM python:3.9.5-slim
+
+RUN pip install flask && \
+    groupadd -r flask && useradd -r -g flask flask && \
+    mkdir /src && \
+    chown -R flask:flask /src
+
+USER flask
+
+COPY app.py /src/app.py
+
+WORKDIR /src
+ENV FLASK_APP=app.py
+
+EXPOSE 5000
+
+CMD ["flask", "run", "-h", "0.0.0.0"]
+```
+
+# 6.docker的存储
+
