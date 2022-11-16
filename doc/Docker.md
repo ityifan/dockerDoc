@@ -770,4 +770,136 @@ test.txt
 this is ssh volume
 ```
 
-# 7.docker的网络
+# 7.docker的网络(linux下进行)
+
+## 1.Linux下docker的安装
+
+在linux下安装好docker环境
+
+1、切换到root账户，输入su root，再输入密码即可。
+
+ 2、docker安装要求：
+
+  Docker要求CentOS系统的内核版本高于 3.10 ，通过 uname -r 命令查看你当前的内核版本是否支持安账docker。
+
+3、输入：sudo yum update
+
+4、输入y，点击确定
+
+5.继续输入y，点击确定
+
+6、输入 sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+
+7、 输入：sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+官网地址
+
+yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+阿里云地址
+
+yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo　   
+
+ 8、选择特定版本安装：yum list docker-ce --showduplicates | sort -r
+
+也可以直接安装：sudo yum install 3:19.03.5-3.el7　　　
+
+ 9、输入：sudo yum install docker-ce-17.12.0.ce，输入y，点击确定
+
+10、 再输入y，点击确定
+
+ 11、这样就安装好了
+
+ 12、输入：docker version
+
+ 13、先输入：sudo systemctl start docker，再输入：sudo systemctl enable docker
+
+ 14、再次输入：docker version，出现了client和server就代表安装成功了。　　
+
+ 15、查看docker启动状态：systemctl status docker（如下图即启动成功）　　
+
+16、卸载命令：
+
+a.查询docker安装过的包：yum list installed | grep docker
+
+b.删除安装包：yum remove docker-ce.x86_64 ddocker-ce-cli.x86_64 -y
+
+c.删除镜像/容器等：rm -rf /var/lib/docker
+
+
+## 2.Linux常用的命令
+
+```
+ifconfig
+ip addr
+```
+
+网络连通性测试
+
+ping命令（测试ip的连通性）windows
+
+```powershell
+ping 192.168.178.1
+```
+
+telnet命令(测试端口的连通性) windows
+
+```powershell
+telnet www.baidu.com 80
+```
+
+Linux下使用tracepath （路径探测跟踪）
+
+```powershell
+tracepath www.baidu.com
+```
+
+windows下使用 TRACERT.EXE
+
+```powershell
+TRACERT.EXE www.baidu.com
+```
+
+curl命令
+
+请求web服务的
+
+
+
+
+
+## 3.Docker Bridge 网络
+
+![image-20221116123947714](iamge/image-20221116123947714.png)
+
+Warning
+
+注意，本节实验需要在Linux环境下进行
+
+```powershell
+docker network ls
+docker network inspect [ID]
+```
+
+![image-20221116123355613](iamge/image-20221116123355613.png)
+
+这些容器都会连接到docker0上 所以容器之间 是可以互相通信的 
+
+
+
+
+
+Note
+
+```powershell
+brctl` 使用前需要安装, 对于CentOS, 可以通过 `sudo yum install -y bridge-utils` 安装. 对于Ubuntu, 可以通过 `sudo apt-get install -y bridge-utils
+
+
+$ brctl show
+bridge name     bridge id               STP enabled     interfaces
+docker0         8000.0242759468cf       no              veth8c9bb82
+                                                        vethd8f9afb
+```
+
+
+
