@@ -1,4 +1,4 @@
-# Docker
+# Docker1
 
 ------
 
@@ -877,7 +877,7 @@ Warning
 注意，本节实验需要在Linux环境下进行
 
 ```powershell
-docker network ls
+docker network ls #查看网络
 docker network inspect [ID]
 ```
 
@@ -903,3 +903,589 @@ docker0         8000.0242759468cf       no              veth8c9bb82
 
 
 
+### 1.创建和使用自定义bridge
+
+```powershell
+[root@hecs-264568 ~]#docker network create -d bridge mybridge
+5693d75bd369509099e4cd143319950565b36db5ef5a9790a39a4769420b49b2
+[root@hecs-264568 ~]# docker network ls
+NETWORK ID          NAME                DRIVER              SCOPE
+14b0fa42269d        bridge              bridge              local
+f33047206747        host                host                local
+5693d75bd369        mybridge            bridge              local
+7cc812dac06c        none    
+查看一下网络情况
+root@hecs-264568 ~]# docker network inspect mybridge
+[
+    {
+        "Name": "mybridge",
+        "Id": "5693d75bd369509099e4cd143319950565b36db5ef5a9790a39a4769420b49b2",
+        "Created": "2022-11-17T10:34:54.03991162+08:00",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "172.18.0.0/16",
+                    "Gateway": "172.18.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {},
+        "Options": {},
+        "Labels": {}
+    }
+]
+```
+
+使用创建的网络(创建一个nginx容器)
+
+```powershell
+[root@hecs-264568 ~]# docker container  run -d --rm --name web1 --network mybridge -p 80:80  nginx
+ab09d5e8da155970b64b82701da216cc2e238a5b328bb1317a974731342f12c0
+[root@hecs-264568 ~]# docker container inspect ab
+[
+    {
+        "Id": "ab09d5e8da155970b64b82701da216cc2e238a5b328bb1317a974731342f12c0",
+        "Created": "2022-11-17T02:46:36.813791931Z",
+        "Path": "/docker-entrypoint.sh",
+        "Args": [
+            "nginx",
+            "-g",
+            "daemon off;"
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 15156,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2022-11-17T02:46:37.042878648Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "Image": "sha256:88736fe827391462a4db99252117f136b2b25d1d31719006326a437bb40cb12d",
+        "ResolvConfPath": "/var/lib/docker/containers/ab09d5e8da155970b64b82701da216cc2e238a5b328bb1317a974731342f12c0/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/ab09d5e8da155970b64b82701da216cc2e238a5b328bb1317a974731342f12c0/hostname",
+        "HostsPath": "/var/lib/docker/containers/ab09d5e8da155970b64b82701da216cc2e238a5b328bb1317a974731342f12c0/hosts",
+        "LogPath": "/var/lib/docker/containers/ab09d5e8da155970b64b82701da216cc2e238a5b328bb1317a974731342f12c0/ab09d5e8da155970b64b82701da216cc2e238a5b328bb1317a974731342f12c0-json.log",
+        "Name": "/web1",
+        "RestartCount": 0,
+        "Driver": "overlay2",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "",
+        "ExecIDs": null,
+        "HostConfig": {
+            "Binds": null,
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "mybridge",
+            "PortBindings": {
+                "80/tcp": [
+                    {
+                        "HostIp": "",
+                        "HostPort": "80"
+                    }
+                ]
+            },
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": true,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "CapAdd": null,
+            "CapDrop": null,
+            "Dns": [],
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "shareable",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": null,
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 67108864,
+            "Runtime": "runc",
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": [],
+            "BlkioDeviceReadBps": null,
+            "BlkioDeviceWriteBps": null,
+            "BlkioDeviceReadIOps": null,
+            "BlkioDeviceWriteIOps": null,
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [],
+            "DeviceCgroupRules": null,
+            "DiskQuota": 0,
+            "KernelMemory": 0,
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": false,
+            "PidsLimit": 0,
+            "Ulimits": null,
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0
+        },
+        "GraphDriver": {
+            "Data": {
+                "LowerDir": "/var/lib/docker/overlay2/219a0935b683d1ea1ccdd4fed0355a612cb9d2b20ca1f6e2a38288b6d0f550f0-init/diff:/var/lib/docker/overlay2/b5072b9d0a90ce471294adcd11ef31345315085b57bfe97fcbedc9f09657c0f9/diff:/var/lib/docker/overlay2/8fdadfffb7879a8169bc7ecadcb7f2d6f8b4a294d1ed95530937b84284b66f98/diff:/var/lib/docker/overlay2/168416a185778cd74cb0f18a97f47d6c51963c122aa91309ffdcc043b7468570/diff:/var/lib/docker/overlay2/b80ffeec1bde3060a67c9387aa1b29d9a64374cebc655fc615fb29df4005f469/diff:/var/lib/docker/overlay2/e853211c368985256f35f20cb9f7ffba6b10367c4d582ec80252e5505cf56637/diff:/var/lib/docker/overlay2/5e3c1e400dec895c116fe1b1aa510652f1e0482c0506bb4de7b40ebe8484c67a/diff",
+                "MergedDir": "/var/lib/docker/overlay2/219a0935b683d1ea1ccdd4fed0355a612cb9d2b20ca1f6e2a38288b6d0f550f0/merged",
+                "UpperDir": "/var/lib/docker/overlay2/219a0935b683d1ea1ccdd4fed0355a612cb9d2b20ca1f6e2a38288b6d0f550f0/diff",
+                "WorkDir": "/var/lib/docker/overlay2/219a0935b683d1ea1ccdd4fed0355a612cb9d2b20ca1f6e2a38288b6d0f550f0/work"
+            },
+            "Name": "overlay2"
+        },
+        "Mounts": [],
+        "Config": {
+            "Hostname": "ab09d5e8da15",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "ExposedPorts": {
+                "80/tcp": {}
+            },
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "NGINX_VERSION=1.23.2",
+                "NJS_VERSION=0.7.7",
+                "PKG_RELEASE=1~bullseye"
+            ],
+            "Cmd": [
+                "nginx",
+                "-g",
+                "daemon off;"
+            ],
+            "Image": "nginx",
+            "Volumes": null,
+            "WorkingDir": "",
+            "Entrypoint": [
+                "/docker-entrypoint.sh"
+            ],
+            "OnBuild": null,
+            "Labels": {
+                "maintainer": "NGINX Docker Maintainers <docker-maint@nginx.com>"
+            },
+            "StopSignal": "SIGQUIT"
+        },
+        "NetworkSettings": {
+            "Bridge": "",
+            "SandboxID": "be203abcde872e230d16647026c4820a1c3e795692b1728430f11942d7425079",
+            "HairpinMode": false,
+            "LinkLocalIPv6Address": "",
+            "LinkLocalIPv6PrefixLen": 0,
+            "Ports": {
+                "80/tcp": [
+                    {
+                        "HostIp": "0.0.0.0",
+                        "HostPort": "80"
+                    }
+                ]
+            },
+            "SandboxKey": "/var/run/docker/netns/be203abcde87",
+            "SecondaryIPAddresses": null,
+            "SecondaryIPv6Addresses": null,
+            "EndpointID": "",
+            "Gateway": "",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "IPAddress": "",
+            "IPPrefixLen": 0,
+            "IPv6Gateway": "",
+            "MacAddress": "",
+            "Networks": {
+                "mybridge": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": [
+                        "ab09d5e8da15"
+                    ],
+                    "NetworkID": "5693d75bd369509099e4cd143319950565b36db5ef5a9790a39a4769420b49b2",
+                    "EndpointID": "5743c1c14ce25d0a50580f619d2ecbc920ed6f700c1a6b9ead64f031d335b331",
+                    "Gateway": "172.18.0.1",
+                    "IPAddress": "172.18.0.2",
+                    "IPPrefixLen": 16,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "MacAddress": "02:42:ac:12:00:02",
+                    "DriverOpts": null
+                }
+            }
+        }
+    }
+]
+```
+
+发现 ipaddress 和 gateway 属于 mybridge的网段 同时 名字也为 mybridge
+
+查看一下  network inspect mybridge
+
+```powershell
+[root@hecs-264568 ~]# docker network  inspect mybridge
+[
+    {
+        "Name": "mybridge",
+        "Id": "5693d75bd369509099e4cd143319950565b36db5ef5a9790a39a4769420b49b2",
+        "Created": "2022-11-17T10:34:54.03991162+08:00",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "172.18.0.0/16",
+                    "Gateway": "172.18.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {
+            "ab09d5e8da155970b64b82701da216cc2e238a5b328bb1317a974731342f12c0": {
+                "Name": "web1",
+                "EndpointID": "5743c1c14ce25d0a50580f619d2ecbc920ed6f700c1a6b9ead64f031d335b331",
+                "MacAddress": "02:42:ac:12:00:02",
+                "IPv4Address": "172.18.0.2/16",
+                "IPv6Address": ""
+            }
+        },
+        "Options": {},
+        "Labels": {}
+    }
+]
+```
+
+一个容器可不可以同时连接两个网络呢 答案是可以的 这句话代表 让box容器连接(断开)bridge网络
+
+```powershell
+docker network connect bridge box   #连接一个网络
+docker network disconnect bridge box  #断开一个网络
+```
+
+在创建的 网络中 默认的bridge 不提供 ping名字的功能
+
+创建网络的时候自定义gateway 和 subnet 
+
+```powershell
+docker network create -d bridge --gateway 172.200.0.1 --subnet 172.200.0.0/16 demo
+```
+
+
+
+
+
+### 2.端口转发
+
+```
+-p 8080:80 
+  外部:内部
+```
+
+![image-20221117113228684](iamge/image-20221117113228684.png)
+
+### 3.端口转发和dockerfile
+
+dockerfile内部的 EXPOSE 的作用 其实是 告诉使用者 如何使用 并不是真正的 暴露端口
+
+## 4.docker host网络
+
+host network 和主机同享一个网络。使用host 网络启动nginx 性能会好一些
+
+```powershell
+docker container run -d --name web4 --network host nginx
+```
+
+查看容器日志
+
+```
+docker logs -f web5
+```
+
+## 5.linux网络命名空间
+
+
+
+Linux的Namespace（命名空间）技术是一种隔离技术，常用的Namespace有 user namespace, process namespace, network namespace等
+
+在Docker容器中，不同的容器通过Network namespace进行了隔离，也就是不同的容器有各自的IP地址，路由表等，互不影响。
+
+Note
+
+准备一台Linux机器，这一节会用到一个叫 `brtcl` 的命令，这个命令需要安装，如果是Ubuntu的系统，可以通过 `apt-get install bridge-utils` 安装；如果是Centos系统，可以通过 `sudo yum install bridge-utils` 来安装
+
+![docker-volume](https://dockertips.readthedocs.io/en/latest/_images/network-namespace.png)
+
+### 创建bridge
+
+```
+[vagrant@docker-host1 ~]$ sudo brctl addbr mydocker0
+[vagrant@docker-host1 ~]$ brctl show
+bridge name     bridge id               STP enabled     interfaces
+mydocker0               8000.000000000000       no
+[vagrant@docker-host1 ~]$
+```
+
+
+
+### 准备一个shell脚本
+
+Note
+
+https://twitter.com/xiaopeng163/status/1531022226933391362?s=20&t=LuWDZHV3TCLmLsI1nCb1FQ
+
+脚本名字叫 `add-ns-to-br.sh`
+
+```
+#!/bin/bash
+
+bridge=$1
+namespace=$2
+addr=$3
+
+vethA=veth-$namespace
+vethB=eth00-$namespace
+
+sudo ip netns add $namespace
+sudo ip link add $vethA type veth peer name $vethB
+
+sudo ip link set $vethB netns $namespace
+sudo ip netns exec $namespace ip addr add $addr dev $vethB
+sudo ip netns exec $namespace ip link set $vethB up
+
+sudo ip link set $vethA up
+
+sudo brctl addif $bridge $vethA
+```
+
+
+
+### 脚本执行
+
+```
+[vagrant@docker-host1 ~]$ sh add-ns-to-br.sh mydocker0 ns1 172.16.1.1/16
+[vagrant@docker-host1 ~]$ sh add-ns-to-br.sh mydocker0 ns2 172.16.1.2/16
+```
+
+
+
+把mydocker0这个bridge up起来
+
+```
+[vagrant@docker-host1 ~]$ sudo ip link set dev mydocker0 up
+```
+
+
+
+### 验证
+
+```
+[vagrant@docker-host1 ~]$ sudo ip netns exec ns1 bash
+[root@docker-host1 vagrant]# ip a
+1: lo: <LOOPBACK> mtu 65536 qdisc noop state DOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+5: eth00@if6: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether f2:59:19:34:73:70 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.16.1.1/16 scope global eth00
+    valid_lft forever preferred_lft forever
+    inet6 fe80::f059:19ff:fe34:7370/64 scope link
+    valid_lft forever preferred_lft forever
+[root@docker-host1 vagrant]# ping 172.16.1.2
+PING 172.16.1.2 (172.16.1.2) 56(84) bytes of data.
+64 bytes from 172.16.1.2: icmp_seq=1 ttl=64 time=0.029 ms
+64 bytes from 172.16.1.2: icmp_seq=2 ttl=64 time=0.080 ms
+^C
+--- 172.16.1.2 ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1000ms
+rtt min/avg/max/mdev = 0.029/0.054/0.080/0.026 ms
+[root@docker-host1 vagrant]#
+```
+
+
+
+### 对外通信
+
+https://www.karlrupp.net/en/computer/nat_tutorial
+
+## 6.Python Flask + Redis 练习
+
+![flask-redis](https://dockertips.readthedocs.io/en/latest/single-host-network/_static/flask-redis.png)
+
+### 程序准备
+
+准备一个Python文件，名字为 `app.py` 内容如下：
+
+```
+from flask import Flask
+from redis import Redis
+import os
+import socket
+
+app = Flask(__name__)
+redis = Redis(host=os.environ.get('REDIS_HOST', '127.0.0.1'), port=6379)
+
+
+@app.route('/')
+def hello():
+    redis.incr('hits')
+    return f"Hello Container World! I have been seen {redis.get('hits').decode('utf-8')} times and my hostname is {socket.gethostname()}.\n"
+```
+
+
+
+准备一个Dockerfile
+
+```
+FROM python:3.9.5-slim
+
+RUN pip install flask redis && \
+    groupadd -r flask && useradd -r -g flask flask && \
+    mkdir /src && \
+    chown -R flask:flask /src
+
+USER flask
+
+COPY app.py /src/app.py
+
+WORKDIR /src
+
+ENV FLASK_APP=app.py REDIS_HOST=redis
+
+EXPOSE 5000
+
+CMD ["flask", "run", "-h", "0.0.0.0"]
+```
+
+
+
+### 镜像准备
+
+构建flask镜像，准备一个redis镜像。
+
+```
+$ docker image pull redis
+$ docker image build -t flask-demo .
+$ docker image ls
+REPOSITORY   TAG          IMAGE ID       CREATED              SIZE
+flask-demo   latest       4778411a24c5   About a minute ago   126MB
+python       3.9.5-slim   c71955050276   8 days ago           115MB
+redis        latest       08502081bff6   2 weeks ago          105MB
+```
+
+
+
+### 创建一个docker bridge
+
+```
+$ docker network create -d bridge demo-network
+8005f4348c44ffe3cdcbbda165beea2b0cb520179d3745b24e8f9e05a3e6456d
+$ docker network ls
+NETWORK ID     NAME           DRIVER    SCOPE
+2a464c0b8ec7   bridge         bridge    local
+8005f4348c44   demo-network   bridge    local
+80b63f711a37   host           host      local
+fae746a75be1   none           null      local
+$
+```
+
+
+
+### 创建redis container
+
+创建一个叫 `redis-server` 的container，连到 demo-network上
+
+```
+$ docker container run -d --name redis-server --network demo-network redis
+002800c265020310231d689e6fd35bc084a0fa015e8b0a3174aa2c5e29824c0e
+$ docker container ls
+CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS         PORTS      NAMES
+002800c26502   redis     "docker-entrypoint.s…"   4 seconds ago   Up 3 seconds   6379/tcp   redis-server
+$
+```
+
+
+
+### 创建flask container
+
+```
+$ docker container run -d --network demo-network --name flask-demo --env REDIS_HOST=redis-server -p 5000:5000 flask-demo
+```
+
+
+
+打开浏览器访问 [http://127.0.0.1:5000](http://127.0.0.1:5000/)
+
+应该能看到类似下面的内容，每次刷新页面，计数加1
+
+Hello Container World! I have been seen 36 times and my hostname is 925ecb8d111a.
+
+### 总结
+
+如果把上面的步骤合并到一起，成为一个部署脚本
+
+```
+# prepare image
+docker image pull redis
+docker image build -t flask-demo .
+
+# create network
+docker network create -d bridge demo-network
+
+# create container
+docker container run -d --name redis-server --network demo-network redis
+docker container run -d --network demo-network --name flask-demo --env REDIS_HOST=redis-server -p 5000:5000 flask-demo
+```
