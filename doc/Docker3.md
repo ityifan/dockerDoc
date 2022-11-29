@@ -50,8 +50,6 @@ PS C:\Users\Peng Xiao\code-demo>
 docker swarm leave --force
 ```
 
-
-
 创建一个server 可以理解为启动了一个容器
 
 ```
@@ -126,3 +124,104 @@ tgz6xf66u20u
 - UDP port `4789`
 
 为了简化，以上所有端口都允许节点之间自由访问就行。
+
+使用vm搭建三个linux虚拟机
+
+1、首先选择桥接网络 
+
+2、下载ifconfig 
+
+3、查看ip
+
+4、使用nxshell链接三个虚拟机
+
+5、安装docker环境
+
+6、启动一个swarm
+
+7、关闭leander的防火墙
+
+```sh
+systemctl stop firewalld.service
+systemctl disable firewalld.service #永久停止
+```
+
+然后分别在其他两台机器上执行
+
+```powershell
+[root@localhost ~]# docker swarm join --token SWMTKN-1-09f9e55ojwu9gdwyo6bc745a6cyuueboc5ruhmgwef7soo6d1q-5molycdj14ke2hp2jbangwg9n 192.168.1.140:2377
+This node joined a swarm as a worker.
+```
+
+切换到leader上 查看docker node ls
+
+```powershell
+[root@localhost ~]# docker node ls
+ID                            HOSTNAME                STATUS              AVAILABILITY        MANAGER STATUS
+ddxdxepdr47qbj0rndzvn9gf0     localhost.localdomain   Ready               Active              
+knwim9l05n8b791ibyohncxxf     localhost.localdomain   Ready               Active              
+qn7d60evrbw2d0943vfglpcv4 *   localhost.localdomain   Ready               Active              Leader
+```
+
+然后在leader上执行
+
+```powershell
+[root@localhost ~]# docker image pull nginx
+Using default tag: latest
+latest: Pulling from library/nginx
+a603fa5e3b41: Pull complete 
+c39e1cda007e: Pull complete 
+90cfefba34d7: Pull complete 
+a38226fb7aba: Pull complete 
+62583498bae6: Pull complete 
+9802a2cfdb8d: Pull complete 
+Digest: sha256:e209ac2f37c70c1e0e9873a5f7231e91dcd83fdf1178d8ed36c2ec09974210ba
+Status: Downloaded newer image for nginx:latest
+[root@localhost ~]# docker image ls
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+nginx               latest              88736fe82739        13 days ago         142MB
+[root@localhost ~]# docker service create --name web2 nginx
+```
+
+开启三个service
+
+```powershell
+[root@localhost ~]# docker service update web2 --replicas 3
+web2
+overall progress: 3 out of 3 tasks 
+1/3: running   [==================================================>] 
+2/3: running   [==================================================>] 
+3/3: running   [==================================================>] 
+verify: Service converged 
+[root@localhost ~]# docker service ls
+ID                  NAME                MODE                REPLICAS            IMAGE               PORTS
+lifmeuezkql0        web                 replicated          0/1                 niginx:latest       
+nq6ob542gv6d        web2                replicated          3/3                 nginx:latest        
+```
+
+
+
+docker service scale web2=4  
+
+也可以启动多个 或者
+
+docker service scale web2=1
+
+停止三个
+
+
+```shll
+docker service logs web2
+```
+
+查看日志所有的
+
+```shll
+docker service logs web2 -
+```
+
+一直监听 通过ctrl+c退出
+
+
+
+### 4.Swarm的网络
