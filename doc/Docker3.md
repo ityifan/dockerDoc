@@ -199,8 +199,6 @@ lifmeuezkql0        web                 replicated          0/1                 
 nq6ob542gv6d        web2                replicated          3/3                 nginx:latest        
 ```
 
-
-
 docker service scale web2=4  
 
 也可以启动多个 或者
@@ -208,7 +206,6 @@ docker service scale web2=4
 docker service scale web2=1
 
 停止三个
-
 
 ```shll
 docker service logs web2
@@ -222,6 +219,42 @@ docker service logs web2 -
 
 一直监听 通过ctrl+c退出
 
-
-
 ### 4.Swarm的网络
+
+对于理解swarm的网络来讲，个人认为最重要的两个点：
+
+* 第一是外部如何访问部署运行在swarm集群内的服务，可以称之为 `入方向` 流量，在swarm里我们通过 `ingress` 来解决
+
+* 第二是部署在swarm集群里的服务，如何对外进行访问，这部分又分为两块:
+  
+  * 第一，`东西向流量` ，也就是不同swarm节点上的容器之间如何通信，swarm通过 `overlay` 网络来解决；
+  
+  * 第二，`南北向流量` ，也就是swarm集群里的容器如何对外访问，比如互联网，这个是 `Linux bridge + iptables NAT` 来解决的
+    
+    ![1669793377736](E:\wxchach\WeChat%20Files\wxid_wauprn67fxyk22\FileStorage\Temp\1669793377736.png)
+
+#### 1、overlay网络
+
+```shell
+[root@localhost ~]# docker network create -d overlay mynet
+kd0yhmrmnezgaykr4tcghum4o
+[root@localhost ~]# docker network ls
+NETWORK ID          NAME                DRIVER              SCOPE
+05a656ac44be        bridge              bridge              local
+2653916be8cb        docker_gwbridge     bridge              local
+025a21e2a00e        host                host                local
+k99bs6672geq        ingress             overlay             swarm
+kd0yhmrmnezg        mynet               overlay             swarm
+30cf2123cc26        none  
+```
+
+```shell
+docker service create --network mynet --name test busybox ping 8.8.8.8
+#创建service的时候可以指定网络
+docker service create --network mynet --name test --replicas 2 busybox ping 8.8.8.8
+#创建service的时候可以指定网络并且指定初始化replicas的数量
+```
+
+2、ingress网络
+
+
