@@ -2,19 +2,13 @@
 
 ------
 
-
-
 # 1.常用的docker命令
-
-
 
 ```
 cd "C:\Program Files\Docker\Docker"
 
 DockerCli.exe -SwitchDaemon
 ```
-
-
 
 ```powershell
 docker 
@@ -104,11 +98,7 @@ docker container run -it ubuntu sh
 
 exit  退出之后 此容器也会停止运行
 
-
-
 ## 2.进入detached模式下的交互式模式
-
-
 
 首先启动一个nginx服务
 
@@ -116,11 +106,7 @@ exit  退出之后 此容器也会停止运行
 docker container run -d -p 80:80 nginx
 ```
 
-
-
 ![image-20220910172019889](iamge\image-20220910172019889.png)
-
-
 
 ```powershell
 docker exec -it [ID] sh
@@ -135,18 +121,12 @@ docker exec -it [ID] sh
 
 ![image-20220910175103556](iamge\image-20220910175103556.png)
 
-
-
 ```powershell
 docker top c2f
 // 查看此容器启动的进程
 ```
 
-
-
 ![image-20220910192538874](iamge\image-20220910192538874.png)
-
-
 
 ## 3.docker container run 背后发生了什么？
 
@@ -168,8 +148,6 @@ $ docker container run -d --publish 80:80 --name webhost nginx
 
 # 4.镜像的创建管理和发布
 
-
-
 ## 1.镜像的获取
 
 - pull from `registry` (online) 从registry拉取
@@ -179,8 +157,6 @@ $ docker container run -d --publish 80:80 --name webhost nginx
 - load from `file` (offline) 文件导入 （离线）
 
 ![image-20220910195225113](iamge\image-20220910195225113.png)
-
-
 
 ```powershell
 docker image pull nginx
@@ -196,15 +172,11 @@ docker image pull nginx
 docker image pull nginx:1.20.0
 ```
 
-
-
 从quay上拉去镜像
 
 ```
 docker image pull quay.io/centos7/nginx-116-centos7 
 ```
-
-
 
 查看docker image镜像跟多信息
 
@@ -252,8 +224,6 @@ docker image load -i .\nginx.image
 ```
 
 ![image-20220910223833720](iamge\image-20220910223833720.png)
-
-
 
 ## 4.dockerfile介绍
 
@@ -337,8 +307,6 @@ docker container commit [ID] [dockerhub账号]/[镜像名称]
 - 固定版本tag而不是每次都使用latest
 - 尽量选择体积小的镜像
 
-
-
 dockerfile 常用常用语法(COPY && ADD)
 
 ```dockerfile
@@ -413,9 +381,9 @@ CMD可以用来设置容器启动时默认会执行的命令。
 
 删除已经退出的docker container
 
-  ```powershell
-  docker system prune -f 
-  ```
+```powershell
+docker system prune -f 
+```
 
 删除目前已经没有使用的image
 
@@ -633,8 +601,6 @@ my-secret-pw 为容器内mysql密码
 
 可以写到指定路径 支持windos
 
-
-
 ## 3.多个机器之间的容器共享数据（docker volume driver）
 
 ![multi-host-volume](https://dockertips.readthedocs.io/en/latest/_images/volumes-shared-storage.png)
@@ -657,8 +623,6 @@ $ docker volume inspect vscode
     }
 ]
 ```
-
-
 
 这一节我们看看一个叫sshfs的driver，如何让docker使用不在同一台机器上的文件系统做volume
 
@@ -684,8 +648,6 @@ Digest: sha256:1d3c3e42c12138da5ef7873b97f7f32cf99fb6edde75fa4f0bcf9ed277855811
 Installed plugin vieux/sshfs
 ```
 
-
-
 ```powershell
 [vagrant@docker-host2 ~]$ docker plugin install --grant-all-permissions vieux/sshfs
 latest: Pulling from vieux/sshfs
@@ -693,8 +655,6 @@ Digest: sha256:1d3c3e42c12138da5ef7873b97f7f32cf99fb6edde75fa4f0bcf9ed277855811
 52d435ada6a4: Complete
 Installed plugin vieux/sshfs
 ```
-
-
 
 ## 创建volume
 
@@ -704,8 +664,6 @@ Installed plugin vieux/sshfs
                           -o password=vagrant \
                           sshvolume
 ```
-
-
 
 查看
 
@@ -729,8 +687,6 @@ vieux/sshfs:latest   sshvolume
     }
 ]
 ```
-
-
 
 ## 创建容器挂载Volume
 
@@ -756,8 +712,6 @@ this is ssh volume
 /app #
 /app #
 ```
-
-
 
 这个文件我们可以在docker-host3上看到
 
@@ -826,7 +780,6 @@ b.删除安装包：yum remove docker-ce.x86_64 ddocker-ce-cli.x86_64 -y
 
 c.删除镜像/容器等：rm -rf /var/lib/docker
 
-
 ## 2.Linux常用的命令
 
 ```
@@ -864,10 +817,6 @@ curl命令
 
 请求web服务的
 
-
-
-
-
 ## 3.Docker Bridge 网络
 
 ![image-20221116123947714](iamge/image-20221116123947714.png)
@@ -885,10 +834,6 @@ docker network inspect [ID]
 
 这些容器都会连接到docker0上 所以容器之间 是可以互相通信的 
 
-
-
-
-
 Note
 
 ```powershell
@@ -900,8 +845,6 @@ bridge name     bridge id               STP enabled     interfaces
 docker0         8000.0242759468cf       no              veth8c9bb82
                                                         vethd8f9afb
 ```
-
-
 
 ### 1.创建和使用自定义bridge
 
@@ -1225,10 +1168,6 @@ docker network disconnect bridge box  #断开一个网络
 docker network create -d bridge --gateway 172.200.0.1 --subnet 172.200.0.0/16 demo
 ```
 
-
-
-
-
 ### 2.端口转发
 
 ```
@@ -1258,8 +1197,6 @@ docker logs -f web5
 
 ## 5.linux网络命名空间
 
-
-
 Linux的Namespace（命名空间）技术是一种隔离技术，常用的Namespace有 user namespace, process namespace, network namespace等
 
 在Docker容器中，不同的容器通过Network namespace进行了隔离，也就是不同的容器有各自的IP地址，路由表等，互不影响。
@@ -1279,8 +1216,6 @@ bridge name     bridge id               STP enabled     interfaces
 mydocker0               8000.000000000000       no
 [vagrant@docker-host1 ~]$
 ```
-
-
 
 ### 准备一个shell脚本
 
@@ -1312,8 +1247,6 @@ sudo ip link set $vethA up
 sudo brctl addif $bridge $vethA
 ```
 
-
-
 ### 脚本执行
 
 ```
@@ -1321,15 +1254,11 @@ sudo brctl addif $bridge $vethA
 [vagrant@docker-host1 ~]$ sh add-ns-to-br.sh mydocker0 ns2 172.16.1.2/16
 ```
 
-
-
 把mydocker0这个bridge up起来
 
 ```
 [vagrant@docker-host1 ~]$ sudo ip link set dev mydocker0 up
 ```
-
-
 
 ### 验证
 
@@ -1354,8 +1283,6 @@ PING 172.16.1.2 (172.16.1.2) 56(84) bytes of data.
 rtt min/avg/max/mdev = 0.029/0.054/0.080/0.026 ms
 [root@docker-host1 vagrant]#
 ```
-
-
 
 ### 对外通信
 
@@ -1385,8 +1312,6 @@ def hello():
     return f"Hello Container World! I have been seen {redis.get('hits').decode('utf-8')} times and my hostname is {socket.gethostname()}.\n"
 ```
 
-
-
 准备一个Dockerfile
 
 ```
@@ -1410,8 +1335,6 @@ EXPOSE 5000
 CMD ["flask", "run", "-h", "0.0.0.0"]
 ```
 
-
-
 ### 镜像准备
 
 构建flask镜像，准备一个redis镜像。
@@ -1425,8 +1348,6 @@ flask-demo   latest       4778411a24c5   About a minute ago   126MB
 python       3.9.5-slim   c71955050276   8 days ago           115MB
 redis        latest       08502081bff6   2 weeks ago          105MB
 ```
-
-
 
 ### 创建一个docker bridge
 
@@ -1442,8 +1363,6 @@ fae746a75be1   none           null      local
 $
 ```
 
-
-
 ### 创建redis container
 
 创建一个叫 `redis-server` 的container，连到 demo-network上
@@ -1457,15 +1376,11 @@ CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS        
 $
 ```
 
-
-
 ### 创建flask container
 
 ```
 $ docker container run -d --network demo-network --name flask-demo --env REDIS_HOST=redis-server -p 5000:5000 flask-demo
 ```
-
-
 
 打开浏览器访问 [http://127.0.0.1:5000](http://127.0.0.1:5000/)
 

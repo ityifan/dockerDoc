@@ -223,7 +223,7 @@ docker service logs web2 -
 
 对于理解swarm的网络来讲，个人认为最重要的两个点：
 
-* 第一是外部如何访问部署运行在swarm集群内的服务，可以称之为 `入方向` 流量，在swarm里我们通过 `ingress` 来解决
+* #### 第一是外部如何访问部署运行在swarm集群内的服务，可以称之为 `入方向` 流量，在swarm里我们通过 `ingress` 来解决
 
 * 第二是部署在swarm集群里的服务，如何对外进行访问，这部分又分为两块:
   
@@ -255,6 +255,80 @@ docker service create --network mynet --name test --replicas 2 busybox ping 8.8.
 #创建service的时候可以指定网络并且指定初始化replicas的数量
 ```
 
-2、ingress网络
+#### 2、ingress网络
+
+docker swarm的ingress网络又叫 `Ingress Routing Mesh`
+
+主要是为了实现把service的服务端口对外发布出去，让其能够被外部网络访问到。
+
+ingress routing mesh是docker swarm网络里最复杂的一部分内容，包括多方面的内容：
+
+* iptables的 Destination NAT流量转发
+
+* Linux bridge, network namespace
+
+* 使用IPVS技术做负载均衡
+
+* 包括容器间的通信（overlay）和入方向流量的端口转发
+
+### 4.Podman
+
+`Podman` 是一个基于 `Linux` 系统的 `daemon-less` 的容器引擎。 可以用来开发，管理和运行 `OCI` 标准的容器. podman可以运行在root或者非root用户模式。
+
+Podman 是 Red Hat 在2018年推出的，源代码开放。
+
+官方网站 [Podman](https://podman.io/)
+
+OCI [Open Container Initiative - Open Container Initiative](https://opencontainers.org/)
+
+#### 和 docker 的区别
+
+* 最主要的区别是podman是Daemonless的，而Docker在执行任务的时候，必须依赖于后台的docker daemon
+
+* podman不需要使用root用户或者root权限，所以更安全。
+
+* podman可以创建pod，pod的概念和Kubernetes 里定义的pod类似
+
+* podman运行把镜像和容器存储在不同的地方，但是docker必须存储在docker engineer所在的本地
+
+* podman是传统的fork-exec 模式，而docker是 client-server 架构
+
+#### 安装
+
+centos
+
+```shell
+sudo yum -y install podman
+```
+
+其他系统安装参考文档
+
+[Podman Installation](https://podman.io/getting-started/installation)
+
+#### 基本使用
+
+```shell
+podman search nginx #搜索image
+podman image pull docker.io/library/nginx #拉取搜索到的镜像
+podman image ls #查看拉取到本地的image
+podman image inspect  88736fe82739 #查看镜像详情
+podman run -d -p 8080:80 docker.io/library/nginx #启动
+podman container stop 041 # 停止容器
+podman container rm  041 #删除容器
+```
+
+#### pod
+
+```shell
+podman pod create --name demo #创建pod
+podman pod ps #查看pod
+podman ps -a --pod #查看pod内部
+```
+
+error 解决方案
+
+```shell
+[root@localhost ~]# podman pod create --name testERRO[0060] Error freeing pod lock after failed creation: no such file or directory Error: unable to create pod: error adding Infra Container: unable to pull k8s.gcr.io/pause:3.1: unable to pull image: Error initializing source docker://k8s.gcr.io/pause:3.1: error pinging docker registry k8s.gcr.io: Get https://k8s.gcr.io/v2/: dial tcp 74.125.204.82:443: i/o timeout[root@localhost ~]# podman pull registry.aliyuncs.com/google_containers/pause:3.2Trying to pull registry.aliyuncs.com/google_containers/pause:3.2...Getting image source signaturesCopying config 80d28bedfe doneWriting manifest to image destinationStoring signatures80d28bedfe5dec59da9ebf8e6260224ac9008ab5c11dbbe16ee3ba3e4439ac2c[root@localhost ~]# podman image tag registry.aliyuncs.com/google_containers/pause:3.2 k8s.gcr.io/pause:3.1[root@localhost ~]# podman pod create --name testc51ded6f9c19a9a70151d19ea36c6dc998fac3cdf1c5fbaff0b9a83119639756
+```
 
 
