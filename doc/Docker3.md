@@ -332,3 +332,5 @@ error 解决方案
 ```
 
 
+###CICD
+可以使用 Jnkenis、Gitlab、GithubActions、AzurePipelines
