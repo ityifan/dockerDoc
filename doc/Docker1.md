@@ -90,7 +90,7 @@ docker container run -it ubuntu sh
 // sh 执行sh 命令
 ```
 
-![image-20220903151606174](\iamge\image-20220903151606174.png)
+![image-20220903151606174](iamge/image-20220903151606174.png)
 
 如此便可得到一个可交互的ubuntu的系统
 
