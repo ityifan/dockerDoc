@@ -75,7 +75,7 @@ flushall #通杀全部苦
 
 ### 数据类型命令以及落地运用
 
-#### 字符串string
+#### 字符串String
 
 ##### 应用场景
 
@@ -153,23 +153,322 @@ getset k1 v111
 
 #### 列表List
 
+##### 应用场景：
+
+```
+微信公众号订阅的消息
+```
+
+##### 常用命令
+
+```bash
+lpush l1 1 2 3 4 5 #从左推入
+rpush l1 6 7 #从右推入
+lrange l1 0 -1 #遍历输出
+#rpush 与 lrange 同时使用 怎么用的怎么输出
+lpop #从左侧弹出（删除）一个
+rpop #从右边弹出（删除）一个
+lindex l1 0 #按照下标取对应的value
+llen l1 #获取list长度
+lrem l2 2 1 #在l2中删除两个1
+ltrim key 开始index 结束index  #截取指定范围的值后再赋值给key
+rpoplpush l1 l2 #从l1中弹出最右侧value 到 l2最左侧value中
+lset key index value
+linsert key before/after #已有值 插入的新值
+```
+
 
 
 #### 哈希Hash
 
+##### 常用命令
 
+```bash
+hset/hget/hmset/hmget/hgetall/hdel
+hlen
+hexists key 在key里面的某个值的key #判断某个key是否存在中
+hkeys/hvals #获取key/value
+hincrby/hincrbyfloat #对number/float类型的数据累加
+hsetnx #不存在赋值 存在 无效
+```
+
+
+
+```bash
+127.0.0.1:6379> hset user:001 id 11 name zs age 25
+(integer) 3
+127.0.0.1:6379>  hgetall user:001
+1) "id"
+2) "11"
+3) "name"
+4) "zs"
+5) "age"
+6) "25"
+127.0.0.1:6379> hget user:001 name
+"zs"
+127.0.0.1:6379> hmset user:002 id 22 name ls age 26
+OK
+127.0.0.1:6379> hmget user:002 id name
+127.0.0.1:6379> hdel user:002 name
+(integer) 1
+127.0.0.1:6379> hgetall user:002
+1) "id"
+2) "22"
+3) "age"
+4) "26"
+127.0.0.1:6379> hlen user:002
+(integer) 2
+
+127.0.0.1:6379> hexists user:002 id
+(integer) 1
+127.0.0.1:6379> hexists user:002 name
+(integer) 0
+
+127.0.0.1:6379> hkeys user:002
+1) "id"
+2) "age"
+127.0.0.1:6379> hvals user:002
+1) "22"
+2) "26"
+
+127.0.0.1:6379> hincrby user:002 id 1
+(integer) 23
+127.0.0.1:6379> hincrbyfloat user:002 c 0.5
+"89"
+
+127.0.0.1:6379> hsetnx user:002 emal 329873@qq.com
+(integer) 1
+127.0.0.1:6379> hsetnx user:002 emal 329873@qq.com
+(integer) 0
+```
+
+
+
+##### 应用场景
+
+JD早期购物车
+
+![image-20230228112459013](iamge/image-20230228112459013.png)
 
 #### 集合Set
+
+##### 常用命令
+
+```bash
+sadd key member [member....]  #添加元素 
+smembers key #遍历集合中所有元素
+sismember key member #判断元素是否在集合中
+srem key member [member ...] #删除元素
+scard #获取集合里面的元素个数
+srandmember key [数字]  #从集合中随机展现设置的数字个数元素，元素不删除
+spop key[数字] #从集合中随机弹出一个元素 出一个删一个
+smove key1 key2 #在key1里已存在的某个值 将key1里已存在的某个值赋值给key2
+
+```
+
+
+
+```bash
+127.0.0.1:6379> sadd s1 1 1 1 1 2 2 2 3 4 5
+(integer) 5
+127.0.0.1:6379> smembers s1
+1) "1"
+2) "2"
+3) "3"
+4) "4"
+5) "5"
+127.0.0.1:6379> sismember s1 7
+(integer) 0
+127.0.0.1:6379> sismember s1 1
+(integer) 1
+127.0.0.1:6379> srem s1 0
+(integer) 0
+127.0.0.1:6379> srem s1 1
+(integer) 1
+127.0.0.1:6379> smembers s1
+1) "2"
+2) "3"
+3) "4"
+4) "5"
+127.0.0.1:6379> scard s1
+(integer) 4
+127.0.0.1:6379> SRANDMEMBER s1 2
+1) "4"
+2) "5"
+127.0.0.1:6379> SMEMBERS s1
+1) "2"
+2) "3"
+3) "4"
+4) "5"
+127.0.0.1:6379> spop s1
+"5"
+127.0.0.1:6379> spop s1 2
+1) "4"
+2) "3"
+127.0.0.1:6379> SMEMBERS s1
+1) "2"
+127.0.0.1:6379> sadd s2 a b c d 
+(integer) 4
+127.0.0.1:6379> smove s1 s2 2
+(integer) 1
+127.0.0.1:6379> SMEMBERS s2
+1) "c"
+2) "b"
+3) "d"
+4) "a"
+5) "2"
+```
+
+集合运算
+
+```
+s1: a b c 1 2
+s2: 1 2 3 a x
+集合的差集运算a-b :SDIFF s1 s2
+集合的并集运算a U b:SUNION s1 s2
+集合的交集运算a ∩ b: SINTER s1 s2
+```
+
+
+
+```bash
+127.0.0.1:6379> SDIFF s1 s2
+1) "b"
+2) "c
+127.0.0.1:6379> SDIFF s2 s1
+1) "3"
+2) "x"
+127.0.0.1:6379> SUNION s1 s2
+1) "c"
+2) "1"
+3) "a"
+4) "x"
+5) "2"
+6) "b"
+7) "3"
+127.0.0.1:6379> SINTER s1 s2
+1) "1"
+2) "a"
+3) "2"
+127.0.0.1:6379> SINTERCARD 2 s1 s2
+(integer) 3
+127.0.0.1:6379> SINTERCARD 2 s1 s2 limit 2
+(integer) 2
+127.0.0.1:6379> SINTERCARD 2 s1 s2 limit 1
+(integer) 1
+127.0.0.1:6379> SINTERCARD 2 s1 s2 limit 4
+(integer) 3
+```
+
+##### 使用场景：
+
+```bash
+微信抽奖小程序
+微信朋友圈点赞查看同赞朋友
+QQ内推可能认识的人 #SDIFF s1 s2
+```
+
+![image-20230228152723007](iamge/image-20230228152723007.png)
+
+
+
+![image-20230228152915085](iamge/image-20230228152915085.png)
 
 
 
 #### 有序集合Zset(sorted set)
 
+##### 常用命令
 
+```bash
+127.0.0.1:6379> ZADD zs1 60 v1 70 v2 80 v3 90 v4
+(integer) 4
+127.0.0.1:6379> ZRANGE zs1 0 -1 #输出value
+1) "v1"
+2) "v2"
+3) "v3"
+4) "v4"
+127.0.0.1:6379> ZRANGE zs1 0 -1 withscores #带分数输出（顺序）从小到大
+1) "v1"
+2) "60"
+3) "v2"
+4) "70"
+5) "v3"
+6) "80"
+7) "v4"
+8) "90"
+127.0.0.1:6379> ZREVRANGE zs1 0 -1 withscores #带分数输出（倒叙） 从大到小
+1) "v4"
+2) "90"
+3) "v3"
+4) "80"
+5) "v2"
+6) "70"
+7) "v1"
+8) "60"
+127.0.0.1:6379> ZRANGEBYSCORE zs1 60 90  #选出其中60--90分的
+1) "v1"
+2) "v2"
+3) "v3"
+4) "v4"
+127.0.0.1:6379> ZRANGEBYSCORE zs1 60 90  withscores #选出其中60--90分的 带分数
+1) "v1"
+2) "60"
+3) "v2"
+4) "70"
+5) "v3"
+6) "80"
+7) "v4"
+8) "90"
+127.0.0.1:6379> ZRANGEBYSCORE zs1 (60 90  withscores  #选出其中60--90分的 带分数 不包含60
+1) "v2"
+2) "70"
+3) "v3"
+4) "80"
+5) "v4"
+6) "90"
+127.0.0.1:6379> ZRANGEBYSCORE zs1 (60 90  withscores limit 0 1 #限制次数
+1) "v2"
+2) "70"
+127.0.0.1:6379> ZREM zs1 v4 #删除一个zset
+(integer) 1
+127.0.0.1:6379> ZINCRBY zs1 3 v1 #增加某个元素的分数
+"63"
+127.0.0.1:6379> ZCOUNT zs1 60 90 #获得指定分数范围内的元素个数
+(integer) 3
+127.0.0.1:6379> ZMPOP 1 zs1 min count 1 #从键名列表中的第一个非空排序集中弹出一个或者多个元素 他们是成员分数对
+1) "zs1"
+2) 1) 1) "v1"
+      2) "63"
+127.0.0.1:6379> zrank zs1 v3 #获取对应的下标
+(integer) 0
+127.0.0.1:6379> ZREVRANK zs1 v3 #获取对应的逆序下标
+(integer) 0
+```
 
-#### 位图bitmap
+##### 应用场景：
 
+```
+根据商品销售对商品进行排序显示
+热销的主播
+打赏榜1-5
+```
 
+![image-20230228163833230](iamge/image-20230228163833230.png)
+
+#### 位图bitmap p21集
+
+##### 常用命令
+
+![image-20230228170015863](iamge/image-20230228170015863.png)
+
+##### 应用场景
+
+```
+一年365天 全年天天登录占用多少字节
+```
+
+![image-20230228171436413](iamge/image-20230228171436413.png)
 
 #### 基数统计HyperLogLog
 
