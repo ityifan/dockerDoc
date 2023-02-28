@@ -106,7 +106,7 @@ exit  退出之后 此容器也会停止运行
 docker container run -d -p 80:80 nginx
 ```
 
-![image-20220910172019889](iamge\image-20220910172019889.png)
+![image-20220910172019889](iamge/image-20220910172019889.png)
 
 ```powershell
 docker exec -it [ID] sh
@@ -115,18 +115,18 @@ docker exec -it [ID] sh
 // sh 以shell形式
 ```
 
-![image-20220910174920937](iamge\image-20220910174920937.png)
+![image-20220910174920937](iamge/image-20220910174920937.png)
 
 此时 exit  我们的容器并不会 停止运行
 
-![image-20220910175103556](iamge\image-20220910175103556.png)
+![image-20220910175103556](iamge/image-20220910175103556.png)
 
 ```powershell
 docker top c2f
 // 查看此容器启动的进程
 ```
 
-![image-20220910192538874](iamge\image-20220910192538874.png)
+![image-20220910192538874](iamge/image-20220910192538874.png)
 
 ## 3.docker container run 背后发生了什么？
 
@@ -156,7 +156,7 @@ $ docker container run -d --publish 80:80 --name webhost nginx
 - build from `Dockerfile` (online) 从Dockerfile构建
 - load from `file` (offline) 文件导入 （离线）
 
-![image-20220910195225113](iamge\image-20220910195225113.png)
+![image-20220910195225113](iamge/image-20220910195225113.png)
 
 ```powershell
 docker image pull nginx
@@ -164,7 +164,7 @@ docker image pull nginx
 
 ## 2.镜像的获取查看和删除
 
-![image-20220910213436993](iamge\image-20220910213436993.png)
+![image-20220910213436993](iamge/image-20220910213436993.png)
 
 拉取固定版本
 
@@ -184,11 +184,11 @@ docker image pull quay.io/centos7/nginx-116-centos7
 docker image inspect [ID]
 ```
 
-![image-20220910220931855](iamge\image-20220910220931855.png)
+![image-20220910220931855](iamge/image-20220910220931855.png)
 
 可以查看到很多配置
 
-![image-20220910221516367](iamge\image-20220910221516367.png)
+![image-20220910221516367](iamge/image-20220910221516367.png)
 
 镜像的删除
 
@@ -215,7 +215,7 @@ docker image rm [ID]
 docker image save nginx -o nginx.image
 ```
 
-![image-20220910223152911](iamge\image-20220910223152911.png)
+![image-20220910223152911](iamge/image-20220910223152911.png)
 
 2.导入
 
@@ -223,7 +223,7 @@ docker image save nginx -o nginx.image
 docker image load -i .\nginx.image
 ```
 
-![image-20220910223833720](iamge\image-20220910223833720.png)
+![image-20220910223833720](iamge/image-20220910223833720.png)
 
 ## 4.dockerfile介绍
 
@@ -257,7 +257,7 @@ docker image build -t hello .
 //. 代表当前文件夹
 ```
 
-![image-20220911143954963](iamge\image-20220911143954963.png)
+![image-20220911143954963](iamge/image-20220911143954963.png)
 
 image重命名
 
@@ -280,7 +280,7 @@ docker login
  //名字必须以自己id开头 冒号后标注tag
 ```
 
-![image-20220911144828659](iamge\image-20220911144828659.png)
+![image-20220911144828659](iamge/image-20220911144828659.png)
 
 3.镜像的拉取
 
@@ -288,7 +288,7 @@ docker login
 docker pull leon9907/hello:1.0
 ```
 
-![image-20220911145916494](iamge\image-20220911145916494.png)
+![image-20220911145916494](iamge/image-20220911145916494.png)
 
 ## 6.通过commit创建镜像
 
@@ -504,7 +504,7 @@ docker image build -t flask-node-demo .
 docker container run -it -p 3000:3000 flask-node-demo
 ```
 
-![image-20220912181024766](iamge\image-20220912181024766.png)
+![image-20220912181024766](iamge/image-20220912181024766.png)
 
 如此本机就可以访问到我们定义的接口咯
 
