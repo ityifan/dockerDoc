@@ -51,6 +51,12 @@
 ```bash
 redis-cli -a -p6379
 ```
+
+REDIS的安装和启动
+
+redis-server /myredis/redis7.conf
+
+redis-cli -a 111111 -p 6379
 ## redis10大数据类型
 
 ### String(字符串)
