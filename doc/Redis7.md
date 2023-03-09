@@ -793,6 +793,63 @@ RDB：持久性以指定时间间隔执行数据集的时间点快照
 
 
 
+![image-20230308141033285](iamge/image-20230308141033285.png)
+
+![image-20230308141231216](iamge/image-20230308141231216.png)
+
+修改完文件后 要重启redis
+
+如何恢复
+
+注意：执行flushall/flushdb命令也会产生dump.rdb文件 但是里面是空的 毫无意义  
+
+shutdown也会产生一个新的dump.rdb文件
+
+![image-20230308141908377](iamge/image-20230308141908377.png)
+
+手动保存：
+
+生产环境使用 bgsave（非阻塞）
+
+save（阻塞） 不用
+
+优点：
+
+![image-20230308143324762](iamge/image-20230308143324762.png)
+
+
+
+缺点：
+
+![image-20230308143513792](iamge/image-20230308143513792.png)
+
+检查并且修复rdb文件
+
+
+
+```bash
+cd usr/lock/bin  #进入redis的安装目录
+redis -check-rdb /myredis/dumpfiles/dump6379.rdb
+```
+
+哪些操作会出发生成rdb文件
+
+![image-20230308144205248](iamge/image-20230308144205248.png)
+
+如何禁用快照：
+
+1、修改配置文件 
+
+```bash
+save ""
+```
+
+2、动态所有停止RDB保存规则的方法
+
+```bash
+redis-cli config set save ""
+```
+
 
 
 ### AOF（Append Only File） 记录命令型
