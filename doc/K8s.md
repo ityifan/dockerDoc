@@ -115,7 +115,7 @@ sudo kubeadm init --image-repository registry.aliyuncs.com/google_containers --k
 
 
 
-
+其余两个机器运行 node1-node2
 
 ```
 kubeadm join 192.168.1.155:6443 --token 8i2eux.9oa33vt8kw66xwze \
@@ -134,4 +134,76 @@ kubeadm join 192.168.1.155:6443 --token 8i2eux.9oa33vt8kw66xwze \
 
 ```shell
  curl https://docs.tigera.io/archive/v3.25/manifests/calico.yaml -O
+
+
+ 
+ # 修改 calico.yaml 文件中的 CALICO_IPV4POOL_CIDR 配置，修改为与初始化的 cidr 相同
+
+# 修改 IP_AUTODETECTION_METHOD 下的网卡名称
+
+# 删除镜像 docker.io/ 前缀，避免下载过慢导致失败
+sed -i 's#docker.io/##g' calico.yaml
+ 
+ #输入/寻找
+```
+
+
+
+测试kubernetes集群
+
+
+
+```shell
+# 创建部署
+kubectl create deployment nginx --image=nginx
+
+# 暴露端口
+kubectl expose deployment nginx --port=80 --type=NodePort
+
+# 查看 pod 以及服务信息
+kubectl get pod,svc
+```
+
+
+
+在任意节点使用kubectl  即给其他节点 admin权限
+
+
+
+
+
+```shell
+# 1. 将 master 节点中 /etc/kubernetes/admin.conf 拷贝到需要运行的服务器的 /etc/kubernetes 目录中
+scp /etc/kubernetes/admin.conf root@k8s-node1:/etc/kubernetes
+
+# 2. 在对应的服务器上配置环境变量
+echo "export KUBECONFIG=/etc/kubernetes/admin.conf" >> ~/.bash_profile
+source ~/.bash_profile
+```
+
+
+
+基础命令
+
+
+
+```shell
+#获取所以pod
+kubectl get pods 
+
+#获取所有deploy
+kubectl get deploy
+
+#停止运行的nginx
+kubectl delete deploy nginx
+
+kubectl get deploy
+
+#获取所有的services
+kubectl get services（svc）
+
+#杀死死nginx services
+kubectl delete svc nginx
+
+kubectl get services（svc）
 ```
