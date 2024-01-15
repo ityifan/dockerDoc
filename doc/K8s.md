@@ -18,7 +18,7 @@ sed -ri 's/.*swap.*/#&/' /etc/fstab    # 永久
 # 根据规划设置主机名
 hostnamectl set-hostname <hostname>
 
-hostnamectl set-hostname master
+hostnamectl set-hostname k8s-master
 
 
 cat >> /etc/hosts << EOF
